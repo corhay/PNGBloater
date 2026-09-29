@@ -21,7 +21,8 @@ P --> B : img : Image
 deactivate P 
 B --> M : img : Image
 deactivate B
-
+M -> T : writeOutput()
+T ->] : exit(0)
 
 
 @enduml
