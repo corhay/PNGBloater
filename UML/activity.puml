@@ -1,0 +1,27 @@
+@startuml
+participant "main : Main" as M
+participant "tui : TUI" as T
+participant "png : PNG" as P
+participant "bloater : PNGBloater" as B
+
+M -> T : readInput()
+activate T
+T -> P : getImageFile(path)
+activate P 
+P --> T : img : Image
+deactivate P
+T --> M : img : Image
+deactivate T
+
+M -> B : bloat()
+activate B
+B -> P : buildImage()
+activate P
+P --> B : img : Image
+deactivate P 
+B --> M : img : Image
+deactivate B
+
+
+
+@enduml
