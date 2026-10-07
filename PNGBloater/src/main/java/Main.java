@@ -35,12 +35,12 @@ public class Main implements Runnable {
         private String output;
 
         @Option(names = {"-f", "--factor"}, description = "The factor by which to multiply the file size. Only used when bloating.")
-        private String factor = "2";
+        private int factor = 2;
 
         @Override
         public Integer call() throws Exception { // your business logic goes here...
             //byte[] fileContents = Files.readAllBytes(file.toPath());
-            System.out.printf("File path: %s\nOutput file: %s\nFactor: %s\nMode: bloat", file, output, factor);
+            System.out.printf("File path: %s\nOutput file: %s\nFactor: %d\nMode: bloat", file, output, factor);
             return 0;
         }
     }
