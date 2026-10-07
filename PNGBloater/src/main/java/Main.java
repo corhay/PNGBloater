@@ -9,21 +9,26 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
-@Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
-        description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
+@Command(name = "pngbloater", mixinStandardHelpOptions = true, version = "pngbloater 1.0",
+        description = "Multiplies or reduces the file size of a PNG file without affecting the image itself.")
 public class Main implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "The file whose checksum to calculate.")
+    @Parameters(index = "0", description = "The file to bloat/debloat.")
     private File file;
 
-    @Option(names = {"-a", "--algorithm"}, description = "MD5, SHA-1, SHA-256, ...")
-    private String algorithm = "SHA-256";
+    @Parameters(index = "1", description = "The output file path.")
+    private String output;
+
+    @Option(names = {"-f", "--factor"}, description = "The factor by which to multiply the file size. Only used when bloating.")
+    private String factor = "2";
+
+    @Option(names = {"-d", "--debloat"}, description = "Use this option to reduce file size rather than increase.")
+    private boolean debloat;
 
     @Override
     public Integer call() throws Exception { // your business logic goes here...
         byte[] fileContents = Files.readAllBytes(file.toPath());
-        byte[] digest = MessageDigest.getInstance(algorithm).digest(fileContents);
-        System.out.printf("%0" + (digest.length*2) + "x%n", new BigInteger(1, digest));
+        System.out.printf("File path: %s\nOutput file: %s\nFactor: %s\nDebloat: %s", file, output, factor, (debloat ? "True" : "False"));
         return 0;
     }
 
