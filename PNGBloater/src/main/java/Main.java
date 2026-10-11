@@ -78,7 +78,7 @@ public class Main implements Runnable {
             if (!file.exists()) {
                 throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' does not exist.");
             }
-            if (FilenameUtils.getExtension(file.toPath().toString()) != "png") {
+            if (!FilenameUtils.getExtension(file.toPath().toString()).equals("png")) {
                 throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' must be a png image.");
             }
             System.out.printf("File path: %s\nOutput file: %s\nMode: debloat", file, output);
