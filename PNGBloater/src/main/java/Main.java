@@ -2,6 +2,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -28,6 +33,8 @@ public class Main implements Runnable {
             description = "Multiplies the file size of a PNG file without affecting the image itself.")
     static class Bloat implements Callable<Integer> {
 
+        @Spec CommandSpec spec;
+
         @Parameters(index = "0", description = "The file to bloat.")
         private File file;
 
@@ -38,8 +45,16 @@ public class Main implements Runnable {
         private int factor = 2;
 
         @Override
-        public Integer call() throws Exception { // your business logic goes here...
-            //byte[] fileContents = Files.readAllBytes(file.toPath());
+        public Integer call() throws Exception {
+            if (!file.exists()) {
+                throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' does not exist.");
+            }
+            if (!FilenameUtils.getExtension(file.toPath().toString()).equals("png")) {
+                throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' must be a png image.");
+            }
+            if(factor < 1) {
+                throw new ParameterException(spec.commandLine(), "Factor must be larger than 0, given: " + factor);
+            }
             System.out.printf("File path: %s\nOutput file: %s\nFactor: %d\nMode: bloat", file, output, factor);
             return 0;
         }
@@ -49,6 +64,8 @@ public class Main implements Runnable {
             description = "Reduces a bloated PNG file without affecting the image itself.")
     static class Debloat implements Callable<Integer> {
 
+        @Spec CommandSpec spec;
+
         @Parameters(index = "0", description = "The file to debloat.")
         private File file;
 
@@ -56,15 +73,19 @@ public class Main implements Runnable {
         private String output;
 
         @Override
-        public Integer call() throws Exception { // your business logic goes here...
+        public Integer call() throws Exception {
             //byte[] fileContents = Files.readAllBytes(file.toPath());
+            if (!file.exists()) {
+                throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' does not exist.");
+            }
+            if (FilenameUtils.getExtension(file.toPath().toString()) != "png") {
+                throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' must be a png image.");
+            }
             System.out.printf("File path: %s\nOutput file: %s\nMode: debloat", file, output);
             return 0;
         }
     }
 
-    // this example implements Callable, so parsing, error handling and handling user
-    // requests for usage help or version help can be done with one line of code.
     public static void main(String... args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
