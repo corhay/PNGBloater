@@ -1,4 +1,3 @@
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,10 +39,11 @@ public class Main implements Callable<Integer> {
         System.exit(exitCode);
     }
 
-    public InputStream readFile(String filePath){
-        try{
-            InputStream input = new FileInputStream(filePath); 
-            return new BufferedInputStream (input);
+    public byte[] readFile(String filePath){
+        try (InputStream input = new FileInputStream(filePath)){
+            byte[] out = input.readAllBytes();
+            input.close();
+            return out;
         }
         catch(IOException e){
             System.out.println("The file you just submitted does not exist");
@@ -51,14 +51,21 @@ public class Main implements Callable<Integer> {
         return null;
     }
 
-    public void writeFile(FileInputStream input, int size){
-        try{
-            byte[] buffer = new byte[size];
-            BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream("output.png")); ;
-            int n;
-            while((n = input.read(buffer)) != -1){
-                output.write(buffer,0,n);
-            }
+    public void writeFile(byte[] buffer){
+        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream("output.png"))){
+            output.write(buffer);
+            output.close();
+        }
+        catch(IOException e){
+            System.out.println("An error has occured during the writing of the OutputStream to a new PNG file");
+        }
+    }
+
+    public void writeFile(byte[] buffer, String filename){
+        if(!filename.endsWith(".png")) {filename += ".png";}
+        
+        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(filename))){
+            output.write(buffer);
         }
         catch(IOException e){
             System.out.println("An error has occured during the writing of the OutputStream to a new PNG file");
