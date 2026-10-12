@@ -131,9 +131,9 @@ Commands:
 ### Bloat a file with the default factor (x2)
 
 ```console
-$ pngbloater bloat photo.png photo_bloated.png
-File path: photo.png
-Output file: photo_bloated.png
+$ pngbloater bloat ./assets/example.png ./bloated.png
+File ./assets/example.png bloated successfully!
+Output file: ./bloated.png
 Factor: 2
 Mode: bloat
 ```
@@ -141,9 +141,9 @@ Mode: bloat
 ### Bloat a file with a custom factor
 
 ```console
-$ pngbloater bloat photo.png photo_bloated.png --factor 10
-File path: photo.png
-Output file: photo_bloated.png
+$ pngbloater bloat ./assets/example.png ./bloated.png --factor 10
+File ./assets/example.png bloated successfully!
+Output file: ./bloated.png
 Factor: 10
 Mode: bloat
 ```
@@ -151,9 +151,9 @@ Mode: bloat
 ### Debloat a file
 
 ```console
-$ pngbloater debloat photo_bloated.png photo_restored.png
-File path: photo_bloated.png
-Output file: photo_restored.png
+$ pngbloater debloat ./assets/example-bloated.png ./unbloated.png
+File path: ./assets/example-bloated.png debloated successfully!
+Output file: ./unbloated.png
 Mode: debloat
 ```
 
