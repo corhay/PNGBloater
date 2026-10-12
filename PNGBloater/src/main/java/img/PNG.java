@@ -1,11 +1,10 @@
 package main.java.img;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class PNG implements Image<PNG.Chunk> {
@@ -35,11 +34,16 @@ public class PNG implements Image<PNG.Chunk> {
             ch.setLength(len);
             byte[] type_bytes = new byte[4];
             in.readFully(type_bytes);
-            ch.setType(Chunk.ChunkType.valueOf(new String(type_bytes, StandardCharsets.US_ASCII)));
+            try {
+                ch.setType(Chunk.ChunkType.valueOf(new String(type_bytes, StandardCharsets.US_ASCII)));
+            } catch (IllegalArgumentException e) {
+                ch.setType(Chunk.ChunkType.UNKN);
+            }
             ch.setData(in.readNBytes(len));
             ch.setCRC(in.readInt());
             new_png.content.add(ch);
         } while(!ch.getType().equals(Chunk.ChunkType.IEND));
+
         return new_png;
     }
 
@@ -59,14 +63,33 @@ public class PNG implements Image<PNG.Chunk> {
     }
 
     @Override
-    public void ReadImageContent() {
+    public List<Chunk> ReadImageContent() {
+        return content.stream().filter(chunk -> chunk.getType() == Chunk.ChunkType.IDAT).toList();
     }
 
     @Override
-    public void WriteImageContent() {
+    public void WriteImageContent(List<Chunk> c) {
+        content = (ArrayList<Chunk>) c;
     }
 
+    @Override
+    public byte[] toByteArray() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(bos);
+        try {
+            out.writeLong(SIGNATURE);
+            for(Chunk c : content) {
+                out.write(c.length);
+                out.writeBytes(c.type.toString());
+                out.write(c.data);
+                out.write(c.CRC);
+            }
+        } catch (IOException e) {
+            return new byte[0];
+        }
 
+        return bos.toByteArray();
+    }
 
 
     public static class Chunk {
@@ -81,7 +104,6 @@ public class PNG implements Image<PNG.Chunk> {
              type = ChunkType.valueOf(t);
              data = d;
              CRC = c;
-
          }
 
          public Chunk() {
@@ -120,11 +142,10 @@ public class PNG implements Image<PNG.Chunk> {
         }
 
         private enum ChunkType {
-            IHDR,
-            PLTE,
-            IDAT,
-            IEND
-
+            //main ones
+            IHDR, PLTE, IDAT, IEND,
+            //custom ones : PRIV for private chunks, UNKN for unknowns
+            PRIV,UNKN
         }
     }
 

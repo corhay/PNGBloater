@@ -1,11 +1,14 @@
 package main.java.img;
 
+import java.util.List;
+
 public interface Image<H> {
     H ReadHeader();
     void WriteHeader(H header);
     boolean passesIntegrityCheck();
-    void ReadImageContent();
-    void WriteImageContent();
+    List<H> ReadImageContent();
+    void WriteImageContent(List<H> c);
+    byte[] toByteArray();
 
 
 }
