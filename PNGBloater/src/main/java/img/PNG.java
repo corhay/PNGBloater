@@ -125,7 +125,7 @@ public class PNG implements Image<PNG.Chunk> {
      * @param chunkType the type of chunks you want to remove
      */
     public void RemoveChunksByType(Chunk.ChunkType chunkType) {
-        content = (ArrayList<Chunk>) content.stream().filter(chunk -> chunk.getType() != chunkType).toList();
+        content.removeIf(chunk -> chunk.getType() == chunkType);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class PNGBloater implements ImageBloater<PNG> {
 
     @Override
     public PNG debloat(PNG img) {
-        //img.RemoveChunksByType(PNG.Chunk.ChunkType.PRIV);
+        img.RemoveChunksByType(PNG.Chunk.ChunkType.prIV);
         return img;
     }
 }

@@ -92,7 +92,12 @@ public class Main implements Runnable {
             if (!FilenameUtils.getExtension(file.toPath().toString()).equals("png")) {
                 throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' must be a png image.");
             }
-            System.out.printf("File path: %s\nOutput file: %s\nMode: debloat", file, output);
+
+            PNG image = PNG.parse(readFile(file.toPath().toString()));
+            new PNGBloater().debloat(image);
+            writeFile(image.toByteArray(), output);
+
+            System.out.printf("File path: %s debloated successfully!\nOutput file: %s\nMode: debloat", file, output);
             return 0;
         }
     }
