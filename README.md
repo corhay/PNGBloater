@@ -39,7 +39,6 @@ In both cases the displayed image stays identical.
 
 - [Git](https://git-scm.com/)
 - JDK 21 or newer
-- [Apache Maven](https://maven.apache.org/) 3.6 or newer
 
 ## Installation
 
@@ -47,13 +46,13 @@ In both cases the displayed image stays identical.
 
 ```bash
 git clone https://github.com/corhay/PNGBloater.git
-cd pngbloater
+cd PNGBloater/PNGBloater
 ```
 
 ### 2. Build with Maven
 
 ```bash
-mvn (mvnw) clean package
+./mvnw clean package
 ```
 
 The build compiles the sources and uses the Maven Shade plugin to package the application and its dependencies (picocli, Apache Commons IO) into a single executable JAR in the `target/` directory.
