@@ -4,9 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FilenameUtils;
@@ -62,11 +59,17 @@ public class Main implements Runnable {
                 throw new ParameterException(spec.commandLine(), "Factor must be larger than 0, given: " + factor);
             }
 
-            PNG image = PNG.parse(readFile(file.toPath().toString()));
+            PNG image;
+            try {
+                image = PNG.parse(readFile(file.toPath().toString(), spec));
+            } catch(IOException e) {
+                throw new ParameterException(spec.commandLine(), "Couldn't parse given file: " + e.getMessage());
+            }
+
             new PNGBloater().bloat(image, ((int) file.length()) * (factor - 1));
             writeFile(image.toByteArray(), output);
 
-            System.out.printf("File %s bloated succesfully!\nOutput file: %s\nFactor: %d\nMode: bloat", file, output, factor);
+            System.out.printf("File %s bloated succesfully!\nOutput file: %s\nFactor: %d\nMode: bloat\n", file, output, factor);
             return 0;
         }
     }
@@ -85,7 +88,6 @@ public class Main implements Runnable {
 
         @Override
         public Integer call() throws Exception {
-            //byte[] fileContents = Files.readAllBytes(file.toPath());
             if (!file.exists()) {
                 throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' does not exist.");
             }
@@ -93,11 +95,17 @@ public class Main implements Runnable {
                 throw new ParameterException(spec.commandLine(), "Given file: '" + file + "' must be a png image.");
             }
 
-            PNG image = PNG.parse(readFile(file.toPath().toString()));
+            PNG image;
+            try {
+                image = PNG.parse(readFile(file.toPath().toString(), spec));
+            } catch(IOException e) {
+                throw new ParameterException(spec.commandLine(), "Couldn't parse given file: " + e.getMessage());
+            }
+
             new PNGBloater().debloat(image);
             writeFile(image.toByteArray(), output);
 
-            System.out.printf("File path: %s debloated successfully!\nOutput file: %s\nMode: debloat", file, output);
+            System.out.printf("File path: %s debloated successfully!\nOutput file: %s\nMode: debloat\n", file, output);
             return 0;
         }
     }
@@ -107,26 +115,24 @@ public class Main implements Runnable {
         System.exit(exitCode);
     }
 
-    public static byte[] readFile(String filePath){
+    public static byte[] readFile(String filePath, CommandSpec spec) throws ParameterException {
         try (InputStream input = new FileInputStream(filePath)){
             byte[] out = input.readAllBytes();
-            input.close();
             return out;
         }
         catch(IOException e){
-            System.out.println("The file you just submitted does not exist");
+            throw new ParameterException(spec.commandLine(), "The file you just submitted does not exist");
         }
-        return null;
     }
 
-    public static void writeFile(byte[] buffer, String filename){
+    public static void writeFile(byte[] buffer, String filename) throws IOException {
         if(!filename.endsWith(".png")) {filename += ".png";}
         
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(filename))){
             output.write(buffer);
         }
         catch(IOException e){
-            System.out.println("An error has occured during the writing of the OutputStream to a new PNG file");
+            throw new IOException("An error has occured during the writing of the OutputStream to a new PNG file: " + e.getMessage());
         }
     }
 }
