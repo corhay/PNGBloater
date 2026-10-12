@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.CRC32;
 
 public class PNG implements Image<PNG.Chunk> {
 
@@ -113,7 +114,7 @@ public class PNG implements Image<PNG.Chunk> {
 
          public Chunk(int l, ChunkType t, byte[] d, int c) {
              length = l;
-             type = ChunkType.valueOf(t);
+             type = t;
              data = d;
              CRC = c;
          }
@@ -150,7 +151,14 @@ public class PNG implements Image<PNG.Chunk> {
         }
 
         public void setCRC(int CRC) {
-            this.CRC = CRC;
+             this.CRC = CRC;
+        }
+
+        public void computeCRC() {
+             CRC32 crc = new CRC32();
+             crc.update(this.type.toString().getBytes(StandardCharsets.US_ASCII));
+             crc.update(data);
+             this.CRC = (int)crc.getValue();
         }
 
         private enum ChunkType {
