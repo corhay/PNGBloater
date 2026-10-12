@@ -1,4 +1,4 @@
-package main.java.img;
+package img;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +29,9 @@ public class PNG implements Image<PNG.Chunk> {
             throw new IOException("Not a valid PNG file");
 
         //start reading chunks
-        Chunk ch = new Chunk();
+        Chunk ch;
         do {
+            ch = new Chunk();
             int len = in.readInt();
             ch.setLength(len);
             byte[] type_bytes = new byte[4];
@@ -38,7 +39,7 @@ public class PNG implements Image<PNG.Chunk> {
             try {
                 ch.setType(Chunk.ChunkType.valueOf(new String(type_bytes, StandardCharsets.US_ASCII)));
             } catch (IllegalArgumentException e) {
-                ch.setType(Chunk.ChunkType.UNKN);
+                ch.setType(Chunk.ChunkType.unKN);
             }
             ch.setData(in.readNBytes(len));
             ch.setCRC(in.readInt());
@@ -61,7 +62,7 @@ public class PNG implements Image<PNG.Chunk> {
         try {
             chunkType = Chunk.ChunkType.valueOf(type);
         } catch (IllegalArgumentException e) {
-            chunkType = Chunk.ChunkType.UNKN;
+            chunkType = Chunk.ChunkType.unKN;
         }
         return new Chunk(length, chunkType, data, CRC);
     }
@@ -78,7 +79,7 @@ public class PNG implements Image<PNG.Chunk> {
         try {
             chunkType = Chunk.ChunkType.valueOf(type);
         } catch (IllegalArgumentException e) {
-            chunkType = Chunk.ChunkType.UNKN;
+            chunkType = Chunk.ChunkType.unKN;
         }
         Chunk c =  new Chunk(length, chunkType, data, 0);
         c.computeCRC();
@@ -124,7 +125,7 @@ public class PNG implements Image<PNG.Chunk> {
      * @param chunkType the type of chunks you want to remove
      */
     public void RemoveChunksByType(Chunk.ChunkType chunkType) {
-        content = (ArrayList<Chunk>) content.stream().filter(chunk -> chunk.getType() != chunkType).toList();
+        content.removeIf(chunk -> chunk.getType() == chunkType);
     }
 
     @Override
@@ -134,10 +135,10 @@ public class PNG implements Image<PNG.Chunk> {
         try {
             out.writeLong(SIGNATURE);
             for(Chunk c : content) {
-                out.write(c.length);
+                out.writeInt(c.length);
                 out.writeBytes(c.type.toString());
                 out.write(c.data);
-                out.write(c.CRC);
+                out.writeInt(c.CRC);
             }
         } catch (IOException e) {
             return new byte[0];
@@ -205,11 +206,11 @@ public class PNG implements Image<PNG.Chunk> {
              this.CRC = (int)crc.getValue();
         }
 
-        private enum ChunkType {
+        public enum ChunkType {
             //main ones
             IHDR, PLTE, IDAT, IEND,
-            //custom ones : PRIV for private chunks, UNKN for unknowns
-            PRIV,UNKN
+            //custom ones : PRIV for private chunks, unKN for unknowns
+            prIV,unKN
         }
     }
 
