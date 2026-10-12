@@ -1,7 +1,10 @@
 @startuml
 class Main{}
 
-interface Image{}
+interface Image{
+    +Image(byte[] rawData)
+    +bool isValidImage()
+}
 interface ImageBloater{
     +Image bloat(Image img)
     +Image debloat(Image img)
@@ -10,9 +13,7 @@ interface ImageBloater{
 class PNG implements Image{}
 class PNGBloater implements ImageBloater{}
 
-class TUI{}
 
-Main --> TUI
 Main --> PNG
 Main --> PNGBloater
 
