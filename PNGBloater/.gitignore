@@ -32,5 +32,3 @@ bin/
 
 ### Maven ###
 target
-.mvn
-mvnw**
