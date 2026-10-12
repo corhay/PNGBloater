@@ -118,6 +118,15 @@ public class PNG implements Image<PNG.Chunk> {
         content.add(content.size()-1, c);
     }
 
+    /**
+     * Removes all the chunks of a given ChunkType.
+     * WARNING: removing certain types can yield an unreadble PNG file.
+     * @param chunkType the type of chunks you want to remove
+     */
+    public void RemoveChunksByType(Chunk.ChunkType chunkType) {
+        content = (ArrayList<Chunk>) content.stream().filter(chunk -> chunk.getType() != chunkType).toList();
+    }
+
     @Override
     public byte[] toByteArray() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
