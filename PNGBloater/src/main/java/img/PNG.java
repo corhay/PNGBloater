@@ -48,6 +48,14 @@ public class PNG implements Image<PNG.Chunk> {
         return new_png;
     }
 
+    /**
+     * This version creates a chunk with an already provided CRC
+     * @param length chunk data length in bytes
+     * @param type its type
+     * @param data the raw data
+     * @param CRC the detecting code
+     * @return
+     */
     public static Chunk CreateChunk(int length, String type, byte[] data, int CRC) {
         Chunk.ChunkType chunkType;
         try {
@@ -56,6 +64,25 @@ public class PNG implements Image<PNG.Chunk> {
             chunkType = Chunk.ChunkType.UNKN;
         }
         return new Chunk(length, chunkType, data, CRC);
+    }
+
+    /**
+     * This version creates a chunk and computes the CRC
+     * @param length chunk data length in bytes
+     * @param type its type
+     * @param data the raw data
+     * @return
+     */
+    public static Chunk CreateChunk(int length, String type, byte[] data) {
+        Chunk.ChunkType chunkType;
+        try {
+            chunkType = Chunk.ChunkType.valueOf(type);
+        } catch (IllegalArgumentException e) {
+            chunkType = Chunk.ChunkType.UNKN;
+        }
+        Chunk c =  new Chunk(length, chunkType, data, 0);
+        c.computeCRC();
+        return c;
     }
 
     @Override
