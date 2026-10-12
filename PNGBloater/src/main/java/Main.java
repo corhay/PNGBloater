@@ -114,7 +114,7 @@ public class Main implements Runnable {
             output.close();
         }
         catch(IOException e){
-            System.out.println("An error has occured during the writing of the OutputStream to a new PNG file");
+            System.err.println("An error has occured during the writing of the OutputStream to a new PNG file: " + e.getMessage());
         }
     }
 
