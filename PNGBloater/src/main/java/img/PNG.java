@@ -47,6 +47,16 @@ public class PNG implements Image<PNG.Chunk> {
         return new_png;
     }
 
+    public static Chunk CreateChunk(int length, String type, byte[] data, int CRC) {
+        Chunk.ChunkType chunkType;
+        try {
+            chunkType = Chunk.ChunkType.valueOf(type);
+        } catch (IllegalArgumentException e) {
+            chunkType = Chunk.ChunkType.UNKN;
+        }
+        return new Chunk(length, chunkType, data, CRC);
+    }
+
     @Override
     public Chunk ReadHeader() {
         return content.getFirst();
@@ -92,6 +102,8 @@ public class PNG implements Image<PNG.Chunk> {
     }
 
 
+
+
     public static class Chunk {
 
          private int length;
@@ -99,7 +111,7 @@ public class PNG implements Image<PNG.Chunk> {
          private byte[] data;
          private int CRC;
 
-         public Chunk(int l, String t, byte[] d, int c) {
+         public Chunk(int l, ChunkType t, byte[] d, int c) {
              length = l;
              type = ChunkType.valueOf(t);
              data = d;
