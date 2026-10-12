@@ -1,20 +1,25 @@
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Spec;
-
-import org.apache.commons.io.FilenameUtils;
-
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
-// Inspired by https://picocli.info/quick-guide.html#_subcommands_example and Claude.
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+@Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
+        description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
+public class Main implements Callable<Integer> {
+
+    @Parameters(index = "0", description = "The file whose checksum to calculate.")
+    private File file;
 
 @Command(name = "pngbloater",
         mixinStandardHelpOptions = true,
@@ -89,5 +94,38 @@ public class Main implements Runnable {
     public static void main(String... args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
+    }
+
+    public byte[] readFile(String filePath){
+        try (InputStream input = new FileInputStream(filePath)){
+            byte[] out = input.readAllBytes();
+            input.close();
+            return out;
+        }
+        catch(IOException e){
+            System.out.println("The file you just submitted does not exist");
+        }
+        return null;
+    }
+
+    public void writeFile(byte[] buffer){
+        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream("output.png"))){
+            output.write(buffer);
+            output.close();
+        }
+        catch(IOException e){
+            System.err.println("An error has occured during the writing of the OutputStream to a new PNG file: " + e.getMessage());
+        }
+    }
+
+    public void writeFile(byte[] buffer, String filename){
+        if(!filename.endsWith(".png")) {filename += ".png";}
+        
+        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(filename))){
+            output.write(buffer);
+        }
+        catch(IOException e){
+            System.out.println("An error has occured during the writing of the OutputStream to a new PNG file");
+        }
     }
 }
