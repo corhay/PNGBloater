@@ -94,10 +94,10 @@ public class PNG implements Image<PNG.Chunk> {
     public void WriteHeader(Chunk chk) {
         content.set(0,chk);
     }
-
+    //unused
     @Override
     public boolean passesIntegrityCheck() {
-        return false;
+        return true;
     }
 
     @Override
@@ -108,6 +108,14 @@ public class PNG implements Image<PNG.Chunk> {
     @Override
     public void WriteImageContent(List<Chunk> c) {
         content = (ArrayList<Chunk>) c;
+    }
+    @Override
+    public void AppendImageContent(List<Chunk> c) {
+        content.addAll(content.size()-1, c);
+    }
+
+    public void AppendSingleChunk(Chunk c) {
+        content.add(content.size()-1, c);
     }
 
     @Override

@@ -8,6 +8,7 @@ public interface Image<H> {
     boolean passesIntegrityCheck();
     List<H> ReadImageContent();
     void WriteImageContent(List<H> c);
+    void AppendImageContent(List<H> c);
     byte[] toByteArray();
 
 
