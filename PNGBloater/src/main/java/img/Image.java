@@ -1,4 +1,4 @@
-package main.java.img;
+package img;
 
 import java.util.List;
 

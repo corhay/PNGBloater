@@ -9,17 +9,18 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.io.FilenameUtils;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.ParameterException;
 
-@Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
-        description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
-public class Main implements Callable<Integer> {
-
-    @Parameters(index = "0", description = "The file whose checksum to calculate.")
-    private File file;
+import img.PNG;
+import bloater.PNGBloater;
 
 @Command(name = "pngbloater",
         mixinStandardHelpOptions = true,
@@ -60,7 +61,12 @@ public class Main implements Runnable {
             if(factor < 1) {
                 throw new ParameterException(spec.commandLine(), "Factor must be larger than 0, given: " + factor);
             }
-            System.out.printf("File path: %s\nOutput file: %s\nFactor: %d\nMode: bloat", file, output, factor);
+
+            PNG image = PNG.parse(readFile(file.toPath().toString()));
+            new PNGBloater().bloat(image, ((int) file.length()) * (factor - 1));
+            writeFile(image.toByteArray(), output);
+
+            System.out.printf("File %s bloated succesfully!\nOutput file: %s\nFactor: %d\nMode: bloat", file, output, factor);
             return 0;
         }
     }
@@ -96,7 +102,7 @@ public class Main implements Runnable {
         System.exit(exitCode);
     }
 
-    public byte[] readFile(String filePath){
+    public static byte[] readFile(String filePath){
         try (InputStream input = new FileInputStream(filePath)){
             byte[] out = input.readAllBytes();
             input.close();
@@ -108,17 +114,7 @@ public class Main implements Runnable {
         return null;
     }
 
-    public void writeFile(byte[] buffer){
-        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream("output.png"))){
-            output.write(buffer);
-            output.close();
-        }
-        catch(IOException e){
-            System.err.println("An error has occured during the writing of the OutputStream to a new PNG file: " + e.getMessage());
-        }
-    }
-
-    public void writeFile(byte[] buffer, String filename){
+    public static void writeFile(byte[] buffer, String filename){
         if(!filename.endsWith(".png")) {filename += ".png";}
         
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(filename))){
